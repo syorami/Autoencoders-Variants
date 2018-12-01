@@ -21,6 +21,11 @@ def load_mnist(BATCH_SIZE=32):
     testloader = data.DataLoader(testset, batch_size=BATCH_SIZE, shuffle=False)
 
     print(f'Train Data Shape: {trainset.train_data.numpy().shape}')
-    print(f'Test Data Shape: {testset.test_data.numpy().shape}\n')
+    print(f'Test Data Shape: {testset.test_data.numpy().shape}')
 
     return trainloader, testloader
+
+def imshow(img):
+    img = img / 2 + 0.5     # unnormalize
+    npimg = img.numpy()
+    plt.imshow(np.transpose(npimg, (1, 2, 0)))
