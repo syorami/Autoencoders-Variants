@@ -12,3 +12,6 @@ This is a repository about Pytorch implementations of different Autoencoders var
 - [] Adversarial Autoencoder
 
 Tensorflow version may be updated in the future.
+
+# Reference Blogs & Posts
+- Introduction to autoencoders[https://www.jeremyjordan.me/autoencoders/]
