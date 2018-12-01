@@ -91,8 +91,8 @@ if __name__ == '__main__':
     LEARNING_RATE = 1e-3
     WEIGHT_DECAY = 1e-5
     LOG_INTERVAL = 100
-    TRAIN_SCRATCH = False
-    BEST_VAL = float('inf')
+    TRAIN_SCRATCH = False       # whether to train a model from scratch
+    BEST_VAL = float('inf')     # record the best val loss
 
     train_loader, test_loader = data_utils.load_mnist(BATCH_SIZE)
 
@@ -120,7 +120,7 @@ if __name__ == '__main__':
         images = Variable(images[:32])
         outputs = autoencoder(images.view(images.size(0), -1))
 
-        # plot original and reconstruction images
+        # plot and save original and reconstruction images for comparisons
         plt.figure()
         plt.subplot(121)
         plt.title('Original MNIST Images')

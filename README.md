@@ -13,9 +13,20 @@ This is a repository about *Pytorch* implementations of different *Autoencoder* 
 
 Tensorflow version may be updated in the future.
 
+# Experiment Results & Analysis
+
+Here I will list some results recorded in my experiments or analysis just for simple comparisons between different autoencoder methods after 100 epochs training (I hope this may be helpful).
+
+| Methods | MSE Loss (MNIST or CIFAR-10) |
+| :------: | :------: |
+| Simple Autoencoder | 0.0318 (MNIST) |
+
 # How To Run
 
-You can just find the autoencoder you want according to file names where the model is defined and simply run it. Data loader and some other methods are written in `data_utils.py`
+You can just find the autoencoder you want according to file names where the model is defined and simply run it. Data loader and some other methods are 
+written in `data_utils.py`.    
+
+Pretrained autoencoders are saved in `history` directory and you can simply load them by setting `TRAIN_SCRATCH` flag in python file. Reconstruction results can be find in `reconstruct_images` directory.
 
 # Reference Blogs & Posts
 
