@@ -1,6 +1,6 @@
 # Autoencoders-Variants
 
-This is a repository about Pytorch implementations of different Autoencoders variants on MNIST or CIFAR-10 dataset just for studing so training hyperparameters have not been well-tuned. The following models are going to be implemented:
+This is a repository about *Pytorch* implementations of different *Autoencoder* variants on *MNIST* or *CIFAR-10* dataset just for studing so training hyperparameters have not been well-tuned. The following models are going to be implemented:
 
 - [x] Fully-connected Autoencoder
 - Convolutional Autoencoder
@@ -13,5 +13,10 @@ This is a repository about Pytorch implementations of different Autoencoders var
 
 Tensorflow version may be updated in the future.
 
+# How To Run
+
+You can just find the autoencoder you want according to file names where the model is defined and simply run it. Data loader and some other methods are written in `data_utils.py`
+
 # Reference Blogs & Posts
+
 - [Introduction to autoencoders](https://www.jeremyjordan.me/autoencoders/])
