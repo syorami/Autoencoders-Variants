@@ -5,7 +5,8 @@ This is a repository about *Pytorch* implementations of different *Autoencoder* 
 - [x] Fully-connected Autoencoder (Simple Autoencoder)
 - [x] Convolutional Autoencoder
 - [x] Sparse Autoencoder (L1 regularization)
-- Sparse Autoencoder (KL divergence)
+- [x] Sparse Autoencoder (KL divergence)
+- [x] Sparse Autoencoder Visualization
 - Denoising Autoencoder
 - Contractive Autoencoder
 - Variational Autoencoder
