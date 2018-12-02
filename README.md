@@ -29,9 +29,10 @@ Here I will list some results recorded in my experiments or analysis just for si
 You can just find the autoencoder you want according to file names where the model is defined and simply run it. Data loader and some other methods are 
 written in `data_utils.py`.    
 
-Pretrained autoencoders are saved in `history` directory and you can simply load them by setting `TRAIN_SCRATCH` flag in python file. Reconstruction results can be find in `reconstruct_images` directory.
+Pretrained autoencoders are saved in `history` directory and you can simply load them by setting `TRAIN_SCRATCH` flag in python file. Reconstruction results can be find in `images` directory.
 
 # Reference Blogs & Posts
 
 - [Introduction to autoencoders](https://www.jeremyjordan.me/autoencoders/])
 - [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
+- [Visualizing a Trained Autoencoder](http://ufldl.stanford.edu/wiki/index.php/Visualizing_a_Trained_Autoencoder)

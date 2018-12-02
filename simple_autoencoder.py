@@ -98,7 +98,7 @@ def evaluation(autoencoder, test_loader):
     global BEST_VAL
     if TRAIN_SCRATCH and avg_loss < BEST_VAL:
         BEST_VAL = avg_loss
-        torch.save(autoencoder.state_dict(), './history/simple-autoencoder.pt')
+        torch.save(autoencoder.state_dict(), './history/simple_autoencoder.pt')
         print('Save Best Model in HISTORY\n')
 
 
@@ -129,7 +129,7 @@ if __name__ == '__main__':
         print('Trainig Complete with best validation loss {:.4f}'.format(BEST_VAL))
 
     else:
-        autoencoder.load_state_dict(torch.load('./history/simple-autoencoder.pt'))
+        autoencoder.load_state_dict(torch.load('./history/simple_autoencoder.pt'))
         evaluation(autoencoder, test_loader)
 
         autoencoder.cpu()
@@ -148,4 +148,4 @@ if __name__ == '__main__':
         data_utils.imshow(torchvision.utils.make_grid(
             outputs.view(images.size(0), 1, 28, 28).data
         ))
-        plt.savefig('./reconstruct_images/simple-autoencoder.png')
+        plt.savefig('./images/simple_autoencoder.png')

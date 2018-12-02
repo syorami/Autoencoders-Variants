@@ -4,6 +4,7 @@ import os, datetime
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 import torch
+import numpy as np
 import torchvision
 import data_utils
 import matplotlib.pyplot as plt
@@ -19,18 +20,23 @@ class SparseAutoencoder(nn.Module):
         super(SparseAutoencoder, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(784, 128),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
+            nn.Sigmoid(),
             nn.Linear(128, 64),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
+            nn.Sigmoid(),
             nn.Linear(64, 32),
-            nn.ReLU(inplace=True)
+            # nn.ReLU(inplace=True),
+            nn.Sigmoid(),
         )
 
         self.decoder = nn.Sequential(
             nn.Linear(32, 64),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
+            nn.Sigmoid(),
             nn.Linear(64, 128),
-            nn.ReLU(inplace=True),
+            # nn.ReLU(inplace=True),
+            nn.Sigmoid(),
             nn.Linear(128, 784),
             nn.Tanh()
         )
@@ -40,6 +46,10 @@ class SparseAutoencoder(nn.Module):
         x = self.decoder(x)
         return x
 
+def kl_divergence(p, p_hat):
+    p_tensor = torch.Tensor([p] * len(p_hat)).to(device)
+    return torch.sum(p_tensor * torch.log(p_tensor) - p_tensor * torch.log(p_hat) + (1 - p_tensor) * torch.log(1 - p_tensor) - (1 - p_tensor) * torch.log(1 - p_hat))
+
 def sparse_loss(autoencoder, images):
     loss = 0
     values = images
@@ -47,12 +57,12 @@ def sparse_loss(autoencoder, images):
         fc_layer = list(autoencoder.encoder.children())[2 * i]
         relu = list(autoencoder.encoder.children())[2 * i + 1]
         values = relu(fc_layer(values))
-        loss += torch.mean(torch.abs(values))
+        loss += kl_divergence(DISTRIBUTION_VAL, torch.mean(values, 1))
     for i in range(2):
         fc_layer = list(autoencoder.decoder.children())[2 * i]
         relu = list(autoencoder.decoder.children())[2 * i + 1]
         values = relu(fc_layer(values))
-        loss += torch.mean(torch.abs(values))
+        loss += kl_divergence(DISTRIBUTION_VAL, torch.mean(values, 1))
     return loss
 
 def model_training(autoencoder, train_loader, epoch):
@@ -68,13 +78,13 @@ def model_training(autoencoder, train_loader, epoch):
         if cuda: images = images.to(device)
         outputs = autoencoder(images)
         mse_loss = loss_metric(outputs, images)
-        l1_loss = sparse_loss(autoencoder, images)
-        loss = mse_loss + SPARSE_REG * l1_loss
+        kl_loss = sparse_loss(autoencoder, images)
+        loss = mse_loss + kl_loss * 1e-3
         loss.backward()
         optimizer.step()
         if (i + 1) % LOG_INTERVAL == 0:
             print('Epoch [{}/{}] - Iter[{}/{}], Total loss:{:.4f}, MSE loss:{:.4f}, Sparse loss:{:.4f}'.format(
-                epoch + 1, EPOCHS, i + 1, len(train_loader.dataset) // BATCH_SIZE, loss.item(), mse_loss.item(), l1_loss.item()
+                epoch + 1, EPOCHS, i + 1, len(train_loader.dataset) // BATCH_SIZE, loss.item(), mse_loss.item(), kl_loss.item()
             ))
 
 def evaluation(autoencoder, test_loader):
@@ -96,7 +106,7 @@ def evaluation(autoencoder, test_loader):
     global BEST_VAL
     if TRAIN_SCRATCH and avg_loss < BEST_VAL:
         BEST_VAL = avg_loss
-        torch.save(autoencoder.state_dict(), './history/sparse-autoencoder-l1.pt')
+        torch.save(autoencoder.state_dict(), './history/sparse-autoencoder-KL.pt')
         print('Save Best Model in HISTORY\n')
 
 
@@ -107,8 +117,8 @@ if __name__ == '__main__':
     LEARNING_RATE = 1e-3
     WEIGHT_DECAY = 1e-5
     LOG_INTERVAL = 100
-    SPARSE_REG = 1e-3
-    TRAIN_SCRATCH = False        # whether to train a model from scratch
+    DISTRIBUTION_VAL = 0.2
+    TRAIN_SCRATCH = True        # whether to train a model from scratch
     BEST_VAL = float('inf')     # record the best val loss
 
     train_loader, test_loader = data_utils.load_mnist(BATCH_SIZE)
@@ -128,7 +138,7 @@ if __name__ == '__main__':
         print('Trainig Complete with best validation loss {:.4f}'.format(BEST_VAL))
 
     else:
-        autoencoder.load_state_dict(torch.load('./history/sparse-autoencoder-l1.pt'))
+        autoencoder.load_state_dict(torch.load('./history/sparse-autoencoder-KL.pt'))
         evaluation(autoencoder, test_loader)
 
         autoencoder.cpu()
@@ -147,4 +157,4 @@ if __name__ == '__main__':
         data_utils.imshow(torchvision.utils.make_grid(
             outputs.view(images.size(0), 1, 28, 28).data
         ))
-        plt.savefig('./reconstruct_images/sparse-autoencoder-l1.png')
+        plt.savefig('./images/sparse_autoencoder_KL.png')
