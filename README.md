@@ -20,6 +20,7 @@ Here I will list some results recorded in my experiments or analysis just for si
 | Methods | MSE Loss (MNIST or CIFAR-10) |
 | :------: | :------: |
 | Simple Autoencoder | 0.0318 (MNIST) |
+| Convolutional Autoencoder | 0.0223 (MNIST) |
 
 # How To Run
 

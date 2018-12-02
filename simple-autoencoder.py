@@ -6,12 +6,10 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 import torch
 import torchvision
 import data_utils
-import matplotlib
 import matplotlib.pyplot as plt
 
 from torch import nn
 from torch.autograd import Variable
-from torchvision.utils import save_image
 
 cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if cuda else 'cpu')
@@ -58,8 +56,9 @@ def model_training(autoencoder, train_loader, epoch):
         loss.backward()
         optimizer.step()
         if (i + 1) % LOG_INTERVAL == 0:
-            print('Epoch [{}/{}] - Iter[{}/{}], MSE loss:{:.4f}'
-                  .format(epoch + 1, EPOCHS, i + 1, len(train_loader.dataset) // BATCH_SIZE, loss.item()))
+            print('Epoch [{}/{}] - Iter[{}/{}], MSE loss:{:.4f}'.format(
+                epoch + 1, EPOCHS, i + 1, len(train_loader.dataset) // BATCH_SIZE, loss.item()
+            ))
 
 def evaluation(autoencoder, test_loader):
     total_loss = 0
@@ -116,7 +115,7 @@ if __name__ == '__main__':
 
         autoencoder.cpu()
         dataiter = iter(train_loader)
-        images, labels = next(dataiter)
+        images, _ = next(dataiter)
         images = Variable(images[:32])
         outputs = autoencoder(images.view(images.size(0), -1))
 
