@@ -3,8 +3,9 @@
 This is a repository about *Pytorch* implementations of different *Autoencoder* variants on *MNIST* or *CIFAR-10* dataset just for studing so training hyperparameters have not been well-tuned. The following models are going to be implemented:
 
 - [x] Fully-connected Autoencoder (Simple Autoencoder)
-- Convolutional Autoencoder
-- Sparse Autoencoder (L1 regularization / KL divergence)
+- [x] Convolutional Autoencoder
+- [x] Sparse Autoencoder (L1 regularization)
+- Sparse Autoencoder (KL divergence)
 - Denoising Autoencoder
 - Contractive Autoencoder
 - Variational Autoencoder
@@ -17,9 +18,10 @@ Tensorflow version may be updated in the future.
 
 Here I will list some results recorded in my experiments or analysis just for simple comparisons between different autoencoder methods after 100 epochs training (I hope this may be helpful).
 
-| Methods | MSE Loss (MNIST or CIFAR-10) |
+| Methods | Best MSE Loss (MNIST or CIFAR-10) |
 | :------: | :------: |
 | Simple Autoencoder | 0.0318 (MNIST) |
+| Sparse Autoencoder (L1 reg) | 0.0301 (MNIST) |
 | Convolutional Autoencoder | 0.0223 (MNIST) |
 
 # How To Run

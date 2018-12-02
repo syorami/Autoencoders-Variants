@@ -14,9 +14,9 @@ from torch.autograd import Variable
 cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if cuda else 'cpu')
 
-class Autoencoder(nn.Module):
+class SparseAutoencoder(nn.Module):
     def __init__(self):
-        super(Autoencoder, self).__init__()
+        super(SparseAutoencoder, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(784, 128),
             nn.ReLU(inplace=True),
@@ -55,7 +55,6 @@ def sparse_loss(autoencoder, images):
         loss += torch.mean(torch.abs(values))
     return loss
 
-
 def model_training(autoencoder, train_loader, epoch):
     loss_metric = nn.MSELoss()
     optimizer = torch.optim.Adam(autoencoder.parameters(), lr=LEARNING_RATE, weight_decay=WEIGHT_DECAY)
@@ -68,16 +67,15 @@ def model_training(autoencoder, train_loader, epoch):
         images = images.view(images.size(0), -1)
         if cuda: images = images.to(device)
         outputs = autoencoder(images)
-        loss = loss_metric(outputs, images)
-        print(f'Sparse loss: {sparse_loss(autoencoder, images)}')
+        mse_loss = loss_metric(outputs, images)
+        l1_loss = sparse_loss(autoencoder, images)
+        loss = mse_loss + SPARSE_REG * l1_loss
         loss.backward()
         optimizer.step()
         if (i + 1) % LOG_INTERVAL == 0:
-            print('Epoch [{}/{}] - Iter[{}/{}], MSE loss:{:.4f}'.format(
-                epoch + 1, EPOCHS, i + 1, len(train_loader.dataset) // BATCH_SIZE, loss.item()
+            print('Epoch [{}/{}] - Iter[{}/{}], Total loss:{:.4f}, MSE loss:{:.4f}, Sparse loss:{:.4f}'.format(
+                epoch + 1, EPOCHS, i + 1, len(train_loader.dataset) // BATCH_SIZE, loss.item(), mse_loss.item(), l1_loss.item()
             ))
-            loss = loss_metric(outputs, images)
-
 
 def evaluation(autoencoder, test_loader):
     total_loss = 0
@@ -98,7 +96,7 @@ def evaluation(autoencoder, test_loader):
     global BEST_VAL
     if TRAIN_SCRATCH and avg_loss < BEST_VAL:
         BEST_VAL = avg_loss
-        torch.save(autoencoder.state_dict(), './history/simple-autoencoder.pt')
+        torch.save(autoencoder.state_dict(), './history/sparse-autoencoder-l1.pt')
         print('Save Best Model in HISTORY\n')
 
 
@@ -109,12 +107,13 @@ if __name__ == '__main__':
     LEARNING_RATE = 1e-3
     WEIGHT_DECAY = 1e-5
     LOG_INTERVAL = 100
-    TRAIN_SCRATCH = True        # whether to train a model from scratch
+    SPARSE_REG = 1e-3
+    TRAIN_SCRATCH = False        # whether to train a model from scratch
     BEST_VAL = float('inf')     # record the best val loss
 
     train_loader, test_loader = data_utils.load_mnist(BATCH_SIZE)
 
-    autoencoder = Autoencoder()
+    autoencoder = SparseAutoencoder()
     if cuda: autoencoder.to(device)
 
     if TRAIN_SCRATCH:
@@ -129,7 +128,7 @@ if __name__ == '__main__':
         print('Trainig Complete with best validation loss {:.4f}'.format(BEST_VAL))
 
     else:
-        autoencoder.load_state_dict(torch.load('./history/simple-autoencoder.pt'))
+        autoencoder.load_state_dict(torch.load('./history/sparse-autoencoder-l1.pt'))
         evaluation(autoencoder, test_loader)
 
         autoencoder.cpu()
@@ -148,4 +147,4 @@ if __name__ == '__main__':
         data_utils.imshow(torchvision.utils.make_grid(
             outputs.view(images.size(0), 1, 28, 28).data
         ))
-        plt.savefig('./reconstruct_images/simple-autoencoder.png')
+        plt.savefig('./reconstruct_images/sparse-autoencoder-l1.png')
