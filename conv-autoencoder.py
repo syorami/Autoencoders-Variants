@@ -108,7 +108,7 @@ if __name__ == '__main__':
             evaluation(conv_autoencoder, test_loader)
         print('Trainig Complete with best validation loss {:.4f}'.format(BEST_VAL))
     else:
-        conv_autoencoder.load_state_dict(torch.load('./history/conv-autoencoder.pt'))
+        conv_autoencoder.load_state_dict(torch.load('./history/conv-autoencoder-mnist.pt'))
         evaluation(conv_autoencoder, test_loader)
 
         conv_autoencoder.cpu()
