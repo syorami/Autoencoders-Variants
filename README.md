@@ -26,6 +26,10 @@ Here I will list some results recorded in my experiments or analysis just for si
 | Sparse Autoencoder (KL divergence) | 0.0287 (MNIST) |
 | Convolutional Autoencoder | 0.0223 (MNIST) |
 
+Sparse Autoencoder Visualization:
+
+![Sparse Autoencoder Visualization](https://github.com/tmac1997/Autoencoders-Variants/blob/master/images/sparse_autoencoder_visualization.png)
+
 # How To Run
 
 You can just find the autoencoder you want according to file names where the model is defined and simply run it. Data loader and some other methods are 
