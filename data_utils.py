@@ -39,8 +39,6 @@ def load_cifa(BATCH_SIZE=32):
 
     return trainloader, testloader
 
-
-
 def imshow(img):
     img = img / 2 + 0.5     # unnormalize
     npimg = img.numpy()

@@ -11,6 +11,7 @@ from sparse_autoencoder_l1 import SparseAutoencoderL1
 from sparse_autoencoder_KL import SparseAutoencoderKL
 
 if __name__ == '__main__':
+
     autoencoder = Autoencoder()
     sparse_autoencoder_l1 = SparseAutoencoderL1()
     sparse_autoencoder_kl = SparseAutoencoderKL()
