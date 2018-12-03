@@ -42,3 +42,4 @@ Pretrained autoencoders are saved in `history` directory and you can simply load
 - [Introduction to autoencoders](https://www.jeremyjordan.me/autoencoders/])
 - [Building Autoencoders in Keras](https://blog.keras.io/building-autoencoders-in-keras.html)
 - [Visualizing a Trained Autoencoder](http://ufldl.stanford.edu/wiki/index.php/Visualizing_a_Trained_Autoencoder)
+- [Convolution arithmetic tutorial](http://deeplearning.net/software/theano_versions/dev/tutorial/conv_arithmetic.html#no-zero-padding-unit-strides-transposed)
