@@ -13,7 +13,7 @@ This is a repository about *Pytorch* implementations of different *Autoencoder* 
 - Sequence-to-Sequence Autoencoder
 - Adversarial Autoencoder
 
-Tensorflow version may be updated in the future.
+*Tensorflow* version may be updated in the future.
 
 # Experiment Results & Analysis
 
