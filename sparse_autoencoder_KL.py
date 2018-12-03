@@ -15,28 +15,23 @@ from torch.autograd import Variable
 cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if cuda else 'cpu')
 
-class SparseAutoencoder(nn.Module):
+class SparseAutoencoderKL(nn.Module):
     def __init__(self):
-        super(SparseAutoencoder, self).__init__()
+        super(SparseAutoencoderKL, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(784, 128),
-            # nn.ReLU(inplace=True),
-            nn.Sigmoid(),
+            nn.ReLU(inplace=True),
             nn.Linear(128, 64),
-            # nn.ReLU(inplace=True),
-            nn.Sigmoid(),
+            nn.ReLU(inplace=True),
             nn.Linear(64, 32),
-            # nn.ReLU(inplace=True),
-            nn.Sigmoid(),
+            nn.ReLU(inplace=True),
         )
 
         self.decoder = nn.Sequential(
             nn.Linear(32, 64),
-            # nn.ReLU(inplace=True),
-            nn.Sigmoid(),
+            nn.ReLU(inplace=True),
             nn.Linear(64, 128),
-            # nn.ReLU(inplace=True),
-            nn.Sigmoid(),
+            nn.ReLU(inplace=True),
             nn.Linear(128, 784),
             nn.Tanh()
         )
@@ -47,6 +42,8 @@ class SparseAutoencoder(nn.Module):
         return x
 
 def kl_divergence(p, p_hat):
+    funcs = nn.Sigmoid()
+    p_hat = torch.mean(funcs(p_hat), 1)
     p_tensor = torch.Tensor([p] * len(p_hat)).to(device)
     return torch.sum(p_tensor * torch.log(p_tensor) - p_tensor * torch.log(p_hat) + (1 - p_tensor) * torch.log(1 - p_tensor) - (1 - p_tensor) * torch.log(1 - p_hat))
 
@@ -56,13 +53,13 @@ def sparse_loss(autoencoder, images):
     for i in range(3):
         fc_layer = list(autoencoder.encoder.children())[2 * i]
         relu = list(autoencoder.encoder.children())[2 * i + 1]
-        values = relu(fc_layer(values))
-        loss += kl_divergence(DISTRIBUTION_VAL, torch.mean(values, 1))
+        values = fc_layer(values)
+        loss += kl_divergence(DISTRIBUTION_VAL, values)
     for i in range(2):
         fc_layer = list(autoencoder.decoder.children())[2 * i]
         relu = list(autoencoder.decoder.children())[2 * i + 1]
-        values = relu(fc_layer(values))
-        loss += kl_divergence(DISTRIBUTION_VAL, torch.mean(values, 1))
+        values = fc_layer(values)
+        loss += kl_divergence(DISTRIBUTION_VAL, values)
     return loss
 
 def model_training(autoencoder, train_loader, epoch):
@@ -79,7 +76,7 @@ def model_training(autoencoder, train_loader, epoch):
         outputs = autoencoder(images)
         mse_loss = loss_metric(outputs, images)
         kl_loss = sparse_loss(autoencoder, images)
-        loss = mse_loss + kl_loss * 1e-3
+        loss = mse_loss + kl_loss * SPARSE_REG
         loss.backward()
         optimizer.step()
         if (i + 1) % LOG_INTERVAL == 0:
@@ -106,7 +103,7 @@ def evaluation(autoencoder, test_loader):
     global BEST_VAL
     if TRAIN_SCRATCH and avg_loss < BEST_VAL:
         BEST_VAL = avg_loss
-        torch.save(autoencoder.state_dict(), './history/sparse-autoencoder-KL.pt')
+        torch.save(autoencoder.state_dict(), './history/sparse_autoencoder_KL.pt')
         print('Save Best Model in HISTORY\n')
 
 
@@ -117,13 +114,14 @@ if __name__ == '__main__':
     LEARNING_RATE = 1e-3
     WEIGHT_DECAY = 1e-5
     LOG_INTERVAL = 100
-    DISTRIBUTION_VAL = 0.2
-    TRAIN_SCRATCH = True        # whether to train a model from scratch
+    DISTRIBUTION_VAL = 0.3
+    SPARSE_REG = 1e-3
+    TRAIN_SCRATCH = False        # whether to train a model from scratch
     BEST_VAL = float('inf')     # record the best val loss
 
     train_loader, test_loader = data_utils.load_mnist(BATCH_SIZE)
 
-    autoencoder = SparseAutoencoder()
+    autoencoder = SparseAutoencoderKL()
     if cuda: autoencoder.to(device)
 
     if TRAIN_SCRATCH:
@@ -138,7 +136,7 @@ if __name__ == '__main__':
         print('Trainig Complete with best validation loss {:.4f}'.format(BEST_VAL))
 
     else:
-        autoencoder.load_state_dict(torch.load('./history/sparse-autoencoder-KL.pt'))
+        autoencoder.load_state_dict(torch.load('./history/sparse_autoencoder_KL.pt'))
         evaluation(autoencoder, test_loader)
 
         autoencoder.cpu()

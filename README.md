@@ -23,12 +23,13 @@ Here I will list some results recorded in my experiments or analysis just for si
 | :------: | :------: |
 | Simple Autoencoder | 0.0318 (MNIST) |
 | Sparse Autoencoder (L1 reg) | 0.0301 (MNIST) |
+| Sparse Autoencoder (KL divergence) | 0.0287 (MNIST) |
 | Convolutional Autoencoder | 0.0223 (MNIST) |
 
 # How To Run
 
 You can just find the autoencoder you want according to file names where the model is defined and simply run it. Data loader and some other methods are 
-written in `data_utils.py`.    
+written in `data_utils.py`.
 
 Pretrained autoencoders are saved in `history` directory and you can simply load them by setting `TRAIN_SCRATCH` flag in python file. Reconstruction results can be find in `images` directory.
 

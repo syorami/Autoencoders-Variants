@@ -14,9 +14,9 @@ from torch.autograd import Variable
 cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if cuda else 'cpu')
 
-class SparseAutoencoder(nn.Module):
+class SparseAutoencoderL1(nn.Module):
     def __init__(self):
-        super(SparseAutoencoder, self).__init__()
+        super(SparseAutoencoderL1, self).__init__()
         self.encoder = nn.Sequential(
             nn.Linear(784, 128),
             nn.ReLU(inplace=True),
@@ -113,7 +113,7 @@ if __name__ == '__main__':
 
     train_loader, test_loader = data_utils.load_mnist(BATCH_SIZE)
 
-    autoencoder = SparseAutoencoder()
+    autoencoder = SparseAutoencoderL1()
     if cuda: autoencoder.to(device)
 
     if TRAIN_SCRATCH:
