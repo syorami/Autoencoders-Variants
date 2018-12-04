@@ -7,13 +7,15 @@ This is a repository about *Pytorch* implementations of different *Autoencoder* 
 - [x] Sparse Autoencoder (L1 regularization)
 - [x] Sparse Autoencoder (KL divergence)
 - [x] Sparse Autoencoder Visualization
-- Denoising Autoencoder
+- [x] Denoising Autoencoder
 - Contractive Autoencoder
 - Variational Autoencoder
 - Sequence-to-Sequence Autoencoder
 - Adversarial Autoencoder
 
 *Tensorflow* version may be updated in the future.
+
+Any advice would be appreciated :)
 
 # Experiment Results & Analysis
 
@@ -25,6 +27,7 @@ Here I will list some results recorded in my experiments or analysis just for si
 | Sparse Autoencoder (L1 reg) | 0.0301 (MNIST) |
 | Sparse Autoencoder (KL divergence) | 0.0287 (MNIST) |
 | Convolutional Autoencoder | 0.0223 (MNIST) |
+| Denoising Autoencoder | 0.1118 (MNIST) |
 
 Sparse Autoencoder Visualization:
 
