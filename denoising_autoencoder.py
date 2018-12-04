@@ -11,34 +11,13 @@ import matplotlib.pyplot as plt
 from torch import nn
 from torch.autograd import Variable
 
+from simple_autoencoder import Autoencoder
+
 cuda = torch.cuda.is_available()
 device = torch.device('cuda:0' if cuda else 'cpu')
 
-class Autoencoder(nn.Module):
-    def __init__(self):
-        super(Autoencoder, self).__init__()
-        self.encoder = nn.Sequential(
-            nn.Linear(784, 128),
-            nn.ReLU(inplace=True),
-            nn.Linear(128, 64),
-            nn.ReLU(inplace=True),
-            nn.Linear(64, 32),
-            nn.ReLU(inplace=True)
-        )
-
-        self.decoder = nn.Sequential(
-            nn.Linear(32, 64),
-            nn.ReLU(inplace=True),
-            nn.Linear(64, 128),
-            nn.ReLU(inplace=True),
-            nn.Linear(128, 784),
-            nn.Tanh()
-        )
-
-    def forward(self, x):
-        x = self.encoder(x)
-        x = self.decoder(x)
-        return x
+def noise_input(images):
+    return images * (1 - NOISE_RATIO) + torch.rand(images.size()) * NOISE_RATIO
 
 def model_training(autoencoder, train_loader, epoch):
     loss_metric = nn.MSELoss()
@@ -50,8 +29,9 @@ def model_training(autoencoder, train_loader, epoch):
         images, _ = data
         images = Variable(images)
         images = images.view(images.size(0), -1)
-        if cuda: images = images.to(device)
-        outputs = autoencoder(images)
+        noise_images = noise_input(images)      # add noise into image data
+        if cuda: images, noise_images = images.to(device), noise_images.to(device)
+        outputs = autoencoder(noise_images)
         loss = loss_metric(outputs, images)
         loss.backward()
         optimizer.step()
@@ -80,9 +60,8 @@ def evaluation(autoencoder, test_loader):
     global BEST_VAL
     if TRAIN_SCRATCH and avg_loss < BEST_VAL:
         BEST_VAL = avg_loss
-        torch.save(autoencoder.state_dict(), './history/simple_autoencoder.pt')
+        torch.save(autoencoder.state_dict(), './history/denoise_autoencoder.pt')
         print('Save Best Model in HISTORY\n')
-
 
 if __name__ == '__main__':
 
@@ -91,7 +70,8 @@ if __name__ == '__main__':
     LEARNING_RATE = 1e-3
     WEIGHT_DECAY = 1e-5
     LOG_INTERVAL = 100
-    TRAIN_SCRATCH = True        # whether to train a model from scratch
+    NOISE_RATIO = 0.4
+    TRAIN_SCRATCH = False        # whether to train a model from scratch
     BEST_VAL = float('inf')     # record the best val loss
 
     train_loader, test_loader = data_utils.load_mnist(BATCH_SIZE)
@@ -111,23 +91,28 @@ if __name__ == '__main__':
         print('Trainig Complete with best validation loss {:.4f}'.format(BEST_VAL))
 
     else:
-        autoencoder.load_state_dict(torch.load('./history/simple_autoencoder.pt'))
+        autoencoder.load_state_dict(torch.load('./history/denoise_autoencoder.pt'))
         evaluation(autoencoder, test_loader)
 
         autoencoder.cpu()
         dataiter = iter(train_loader)
         images, _ = next(dataiter)
         images = Variable(images[:32])
-        outputs = autoencoder(images.view(images.size(0), -1))
+
+        noise_images = noise_input(images)
+        outputs = autoencoder(noise_images.view(images.size(0), -1))
 
         # plot and save original and reconstruction images for comparisons
-        plt.figure()
-        plt.subplot(121)
-        plt.title('Original MNIST Images')
+        plt.figure(figsize=(10, 5))
+        plt.subplot(131)
+        plt.title('MNIST Images')
         data_utils.imshow(torchvision.utils.make_grid(images))
-        plt.subplot(122)
+        plt.subplot(132)
+        plt.title('Noise Images')
+        data_utils.imshow(torchvision.utils.make_grid(noise_images))
+        plt.subplot(133)
         plt.title('Autoencoder Reconstruction')
         data_utils.imshow(torchvision.utils.make_grid(
             outputs.view(images.size(0), 1, 28, 28).data
         ))
-        plt.savefig('./images/simple_autoencoder.png')
+        plt.savefig('./images/denoise_autoencoder.png')
